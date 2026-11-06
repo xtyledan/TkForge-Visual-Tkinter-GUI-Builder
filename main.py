@@ -202,7 +202,7 @@ class GUIDesigner:
             "width": default_width,
             "height": default_height,
             "text": f"{widget_name} {self.widget_counter}",
-            "bg": "SystemButtonFace" if widget_type != "canvas" else "white",
+            "bg": self.root.cget("bg") if widget_type != "canvas" else "white",
             "fg": "black",
             "font": ("Arial", 10),
             "canvas_id": None
