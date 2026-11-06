@@ -4,7 +4,11 @@
 
 TkForge addresses the repetitive edit-run cycle involved in arranging basic Tkinter interfaces. Create a layout on a canvas, adjust widget properties, preview the UI, save it as JSON, and generate a standalone Python script.
 
-[![Python regression tests](https://github.com/xtyledan/TkForge/actions/workflows/python-tests.yml/badge.svg)](https://github.com/xtyledan/TkForge/actions/workflows/python-tests.yml)
+[![Python regression tests](https://github.com/xtyledan/TkForge-Visual-Tkinter-GUI-Builder/actions/workflows/python-tests.yml/badge.svg)](https://github.com/xtyledan/TkForge-Visual-Tkinter-GUI-Builder/actions/workflows/python-tests.yml)
+
+![Actual TkForge desktop editor, captured from a running Tkinter application](docs/screenshot.png)
+
+*Actual TkForge interface captured by the [desktop screenshot workflow](https://github.com/xtyledan/TkForge-Visual-Tkinter-GUI-Builder/actions/workflows/capture-demo.yml). This is not a mockup.*
 
 ## What works
 
@@ -22,7 +26,7 @@ The generated code provides widget creation and placement, **not** application-s
 Requirements: Python 3 with Tkinter installed and a desktop session. CI runs its headless unit tests on Python 3.11; full GUI operation has not been automatically tested across platforms.
 
 ```bash
-git clone https://github.com/xtyledan/TkForge.git
+git clone https://github.com/xtyledan/TkForge-Visual-Tkinter-GUI-Builder.git
 cd TkForge
 python main.py
 ```
@@ -56,10 +60,14 @@ Widgets are held as dictionaries with identifiers, types, positions, dimensions,
 - **JSON persistence:** Easy to inspect and version for a single-user design document; no database is needed.
 - **Absolute positioning:** Simple to visualize and export, but generated windows do not reflow their content when resized.
 - **Escaped code generation:** Python string literals use `repr` to avoid producing invalid syntax for normal quoted or multiline text.
-- **Current limitations:** Project JSON is not schema-validated, generated identifiers are not comprehensively validated, and the UI has no automated end-to-end tests. The app is not hosted on the web.
+- **Current limitations:** Project JSON is schema-validated and identifiers follow the supported widget naming rules; the UI still has no automated end-to-end interaction tests. The app is not hosted on the web.
 
 See [engineering interview notes](docs/INTERVIEW_NOTES.md) for implementation tradeoffs and next steps.
 
 ## Evidence and scope
 
-This repository contains an executable desktop application, its full source, and tests. It does not yet have a published binary, downloadable release, verified desktop demo recording, or public web deployment. Do not treat the regression test badge as proof of production readiness.
+This repository contains an executable desktop application, its full source, and tests. It has a verified screenshot generated from a real desktop run, but no published binary, downloadable release, demo recording, or public web deployment. Do not treat the regression test badge as proof of production readiness.
+
+## License
+
+[MIT License](LICENSE).
