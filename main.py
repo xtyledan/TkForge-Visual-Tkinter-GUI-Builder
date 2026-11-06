@@ -249,14 +249,14 @@ class GUIDesigner:
         widget_data["canvas_id"] = rect_id
         widget_data["text_id"] = text_id
         
-        # Bind events only on first draw to avoid duplicate bindings
-        if is_first_draw:
-            self.canvas.tag_bind(widget_data["id"], "<ButtonPress-1>", 
-                                lambda e, wd=widget_data: self.start_drag(e, wd))
-            self.canvas.tag_bind(widget_data["id"], "<B1-Motion>", 
-                                lambda e, wd=widget_data: self.do_drag(e, wd))
-            self.canvas.tag_bind(widget_data["id"], "<ButtonRelease-1>", 
-                                lambda e, wd=widget_data: self.end_drag(e, wd))
+        # Canvas tag_bind attaches to the *current items*, not future items
+        # with the same tag. Redraw deletes those items, so rebind each time.
+        self.canvas.tag_bind(widget_data["id"], "<ButtonPress-1>",
+                             lambda e, wd=widget_data: self.start_drag(e, wd))
+        self.canvas.tag_bind(widget_data["id"], "<B1-Motion>",
+                             lambda e, wd=widget_data: self.do_drag(e, wd))
+        self.canvas.tag_bind(widget_data["id"], "<ButtonRelease-1>",
+                             lambda e, wd=widget_data: self.end_drag(e, wd))
     
     def start_drag(self, event, widget_data: Dict[str, Any]):
         """Start dragging a widget"""
