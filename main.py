@@ -6,6 +6,7 @@ Similar to Tkinter Designer, this tool helps speed up GUI development in Python
 import tkinter as tk
 from tkinter import ttk, messagebox, filedialog, colorchooser
 import json
+from project_format import MAX_FILE_BYTES, export_project, validate_project
 from typing import Dict, List, Any
 
 
@@ -663,53 +664,55 @@ class GUIDesigner:
             self.update_live_preview()
     
     def save_project(self):
-        """Save project to JSON file"""
+        """Save a validated JSON project without ephemeral canvas state."""
         filename = filedialog.asksaveasfilename(
             defaultextension=".json",
             filetypes=[("JSON files", "*.json"), ("All files", "*.*")]
         )
-        if filename:
-            # Prepare data for saving (remove canvas_id)
-            save_data = []
-            for widget in self.widgets:
-                widget_copy = widget.copy()
-                widget_copy.pop("canvas_id", None)
-                save_data.append(widget_copy)
-            
-            with open(filename, "w") as f:
-                json.dump(save_data, f, indent=2)
-            messagebox.showinfo("Success", "Project saved successfully!")
-    
+        if not filename:
+            return
+        try:
+            records = export_project(self.widgets)
+            with open(filename, "w", encoding="utf-8") as handle:
+                json.dump(records, handle, indent=2)
+        except (ValueError, KeyError, OSError, TypeError) as exc:
+            messagebox.showerror("Save failed", str(exc))
+            return
+        messagebox.showinfo("Saved", "Project saved successfully.")
+
     def load_project(self):
-        """Load project from JSON file"""
+        """Validate untrusted input before changing the current project."""
         filename = filedialog.askopenfilename(
             filetypes=[("JSON files", "*.json"), ("All files", "*.*")]
         )
-        if filename:
-            with open(filename, "r") as f:
-                loaded_widgets = json.load(f)
-            
-            # Clear current project
-            for widget_data in self.widgets:
-                self.canvas.delete(widget_data["id"])
-            self.widgets.clear()
-            
-            # Load widgets
-            for widget_data in loaded_widgets:
-                widget_data["canvas_id"] = None
-                self.widgets.append(widget_data)
-                self.draw_widget(widget_data)
-            
-            # Update counter
-            if self.widgets:
-                max_counter = max(
-                    int(w["id"].split("_")[1]) for w in self.widgets
-                )
-                self.widget_counter = max_counter
-            
-            self.update_live_preview()
-            messagebox.showinfo("Success", "Project loaded successfully!")
-    
+        if not filename:
+            return
+        try:
+            import os
+            if os.path.getsize(filename) > MAX_FILE_BYTES:
+                raise ValueError("Project JSON exceeds the 2 MB size limit")
+            with open(filename, "r", encoding="utf-8") as handle:
+                incoming = validate_project(json.load(handle))
+        except (ValueError, OSError, UnicodeError, json.JSONDecodeError) as exc:
+            messagebox.showerror("Load failed", str(exc))
+            return
+
+        self.clear_resize_handles()
+        self.selected_widget = None
+        for widget in self.widgets:
+            self.canvas.delete(widget["id"])
+        self.widgets.clear()
+        for widget in incoming:
+            self.widgets.append(widget)
+            self.draw_widget(widget)
+        self.widget_counter = max(
+            (int(widget["id"].rsplit("_", 1)[1]) for widget in incoming),
+            default=0
+        )
+        self.show_empty_properties()
+        self.update_live_preview()
+        messagebox.showinfo("Loaded", "Project loaded successfully.")
+
     def generate_code(self):
         """Generate Python/Tkinter code from the design"""
         code = self._generate_tkinter_code()
