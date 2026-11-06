@@ -63,5 +63,3 @@ See [engineering interview notes](docs/INTERVIEW_NOTES.md) for implementation tr
 ## Evidence and scope
 
 This repository contains an executable desktop application, its full source, and tests. It does not yet have a published binary, downloadable release, verified desktop demo recording, or public web deployment. Do not treat the regression test badge as proof of production readiness.
-
-Created and maintained in [Tyler Daniels's GitHub portfolio](https://github.com/xtyledan).
