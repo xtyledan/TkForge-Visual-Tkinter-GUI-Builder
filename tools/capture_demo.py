@@ -23,6 +23,7 @@ def main():
     app.add_widget("button", "Button")
     app.selected_widget["text"] = "Sign in"
     app.draw_widget(app.selected_widget)
+    # Render a real sample project before taking the screenshot.
     root.update_idletasks()
     root.update()
     x, y = root.winfo_rootx(), root.winfo_rooty()
