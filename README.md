@@ -1,39 +1,40 @@
-# TkForge
+# TkForge | Visual Tkinter GUI Builder
 
-**Visual editor and Python source generator for Tkinter desktop layouts.**
+**Design Python desktop interfaces visually, preview them, and export runnable Tkinter layout code.**
 
-TkForge addresses the repetitive edit-run cycle involved in arranging basic Tkinter interfaces. Create a layout on a canvas, adjust widget properties, preview the UI, save it as JSON, and generate a standalone Python script.
+[![Python tests](https://github.com/xtyledan/TkForge-Visual-Tkinter-GUI-Builder/actions/workflows/python-tests.yml/badge.svg)](https://github.com/xtyledan/TkForge-Visual-Tkinter-GUI-Builder/actions/workflows/python-tests.yml) · [Screenshot](docs/screenshot.png) · [Engineering notes](docs/INTERVIEW_NOTES.md) · [MIT License](LICENSE)
 
-[![Python regression tests](https://github.com/xtyledan/TkForge-Visual-Tkinter-GUI-Builder/actions/workflows/python-tests.yml/badge.svg)](https://github.com/xtyledan/TkForge-Visual-Tkinter-GUI-Builder/actions/workflows/python-tests.yml)
+![Real TkForge desktop application](docs/screenshot.png)
 
-![Actual TkForge desktop editor, captured from a running Tkinter application](docs/screenshot.png)
+*Actual application screenshot captured from Tkinter under a virtual desktop in GitHub Actions, not a design mockup.*
 
-*Actual TkForge interface captured by the [desktop screenshot workflow](https://github.com/xtyledan/TkForge-Visual-Tkinter-GUI-Builder/actions/workflows/capture-demo.yml). This is not a mockup.*
+## Why it exists
 
-## What works
+Tkinter layout work often means repeatedly editing code and launching a window to see the result. TkForge provides a visual canvas for placing common widgets and generating the corresponding Python layout code.
 
-- Add ten types of Tkinter widgets from a palette, including buttons, labels, entries, frames, and canvases.
-- Move and resize visual representations of widgets on a design canvas.
-- Edit positioning, dimensions, colors, and text through a properties panel.
-- Save and load designs as JSON.
-- Preview layouts and export Python/Tkinter source code.
-- Escape text and color string literals in exported Python code, including embedded quotes, newlines, and backslashes.
+## Features
 
-The generated code provides widget creation and placement, **not** application-specific callbacks, validation, or business logic.
+- Add buttons, labels, entries, text fields, checkboxes, radio buttons, listboxes, comboboxes, frames and canvases.
+- Drag, resize, select and edit widget properties in the designer.
+- Preview layouts; save and load validated JSON project files.
+- Export standalone Python/Tkinter source with safely escaped text values.
+- Run automated code-generation, import-validation and canvas-redraw regression tests.
 
-## Run locally
+**Scope:** The export produces a starting layout, not application-specific handlers or business logic.
 
-Requirements: Python 3 with Tkinter installed and a desktop session. CI runs its headless unit tests on Python 3.11; full GUI operation has not been automatically tested across platforms.
+## Quick start
+
+Requires a desktop environment and Python 3 with Tkinter installed.
 
 ```bash
 git clone https://github.com/xtyledan/TkForge-Visual-Tkinter-GUI-Builder.git
-cd TkForge
+cd TkForge-Visual-Tkinter-GUI-Builder
 python main.py
 ```
 
-On Windows, the Python launcher may be `py main.py`. On Debian/Ubuntu, Tkinter may require `sudo apt install python3-tk`. No third-party Python packages are required by the current application.
+On Windows, `py main.py` may be preferable. On Debian/Ubuntu, install Tkinter with `sudo apt install python3-tk` if needed. The editor does not require extra Python packages.
 
-**Typical workflow:** Launch the editor → Add a widget → Drag or resize it → Change its properties → Open *Generate → Preview GUI* → Export Python code or save the JSON design.
+**Try it:** Add a Label and Button, drag them into place, change their text, select **Generate → Preview GUI**, then use **Generate Python Code**. Save the layout as JSON to reopen it later.
 
 ## Test
 
@@ -41,33 +42,30 @@ On Windows, the Python launcher may be `py main.py`. On Debian/Ubuntu, Tkinter m
 python -m unittest discover -s tests -v
 ```
 
-GitHub Actions also checks Python syntax and runs headless regression tests on pushes and pull requests. Tests verify generated Python syntax for all ten widget types and proper escaping of special characters. They **do not** cover pointer interaction, screen rendering, or the full desktop workflow.
+[CI runs](https://github.com/xtyledan/TkForge-Visual-Tkinter-GUI-Builder/actions/workflows/python-tests.yml) check Python syntax and headless regressions. The [screenshot workflow](https://github.com/xtyledan/TkForge-Visual-Tkinter-GUI-Builder/actions/workflows/capture-demo.yml) launches a real Tkinter window under a virtual display. These checks are not a full GUI usability test.
 
-## Architecture
+## Design
 
-| Part | Responsibility |
+```mermaid
+flowchart LR
+    A[Widget palette] --> B[Canvas and properties]
+    B --> C[Widget model]
+    C --> D[Preview]
+    C --> E[Validated JSON]
+    C --> F[Generated Python layout]
+```
+
+| Component | Role |
 | --- | --- |
-| `main.py` | Tkinter editor, state management, canvas interaction, JSON persistence, previews, and Python code generation |
-| `tests/test_code_generation.py` | Headless regression coverage of generated Python |
-| `.github/workflows/python-tests.yml` | Automated syntax checks and unit tests |
-| `docs/INTERVIEW_NOTES.md` | Design choices, tradeoffs, and limitations |
+| [main.py](main.py) | Desktop editor, canvas handling, previews and code generation |
+| [project_format.py](project_format.py) | Validated project import/export format |
+| [tests](tests) | Regression tests without a display |
+| [docs/INTERVIEW_NOTES.md](docs/INTERVIEW_NOTES.md) | Technical choices and known limitations |
 
-Widgets are held as dictionaries with identifiers, types, positions, dimensions, styling, and text. Exported code uses Tkinter's `.place()` layout manager because absolute positions map directly to the design canvas.
+**Tradeoff:** Absolute positioning maps simply from the canvas to Tkinter's `.place()`, but generated windows do not automatically reflow when resized.
 
-## Engineering decisions and limitations
+## Limitations and roadmap
 
-- **Python + Tkinter:** Suitable for a self-contained desktop editor, but less flexible for responsive layouts.
-- **JSON persistence:** Easy to inspect and version for a single-user design document; no database is needed.
-- **Absolute positioning:** Simple to visualize and export, but generated windows do not reflow their content when resized.
-- **Escaped code generation:** Python string literals use `repr` to avoid producing invalid syntax for normal quoted or multiline text.
-- **Current limitations:** Project JSON is schema-validated and identifiers follow the supported widget naming rules; the UI still has no automated end-to-end interaction tests. The app is not hosted on the web.
+No packaged release, web deployment or comprehensive automated visual-interaction suite. Generated widgets have no application-specific event handling. Future improvements include keyboard-first editing, responsive layout managers and broader GUI integration tests.
 
-See [engineering interview notes](docs/INTERVIEW_NOTES.md) for implementation tradeoffs and next steps.
-
-## Evidence and scope
-
-This repository contains an executable desktop application, its full source, and tests. It has a verified screenshot generated from a real desktop run, but no published binary, downloadable release, demo recording, or public web deployment. Do not treat the regression test badge as proof of production readiness.
-
-## License
-
-[MIT License](LICENSE).
+**License:** [MIT](LICENSE). [Portfolio](https://xtyledan.github.io/) · [GitHub profile](https://github.com/xtyledan)
